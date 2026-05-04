@@ -53,6 +53,38 @@ class AdminController extends Controller
         return back()->with('success', 'Admin account deleted.');
     }
 
+    public function edit(User $admin)
+    {
+        return view('admin.admins.edit', compact('admin'));
+    }
+
+    public function update(Request $request, User $admin)
+    {
+        $rules = [
+            'name'  => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $admin->id,
+        ];
+
+        // Password hanya wajib jika diisi
+        if ($request->filled('password')) {
+            $rules['password'] = ['confirmed', Password::min(8)->mixedCase()->numbers()];
+        }
+
+        $validated = $request->validate($rules);
+
+        $admin->name  = $validated['name'];
+        $admin->email = $validated['email'];
+
+        if ($request->filled('password')) {
+            $admin->password = Hash::make($request->password);
+        }
+
+        $admin->save();
+
+        return redirect()->route('admin.admins.index')
+            ->with('success', 'Admin account updated successfully!');
+    }
+
     // ── Profile ───────────────────────────────────────────────────────────
     public function editProfile()
     {

@@ -46,10 +46,12 @@ Route::middleware('auth')->group(function () {
 
     // Admin account management
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('admins',          [AdminController::class, 'index'])->name('admins.index');
-        Route::get('admins/create',   [AdminController::class, 'create'])->name('admins.create');
-        Route::post('admins',         [AdminController::class, 'store'])->name('admins.store');
-        Route::delete('admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
+        Route::get('admins',                    [AdminController::class, 'index'])->name('admins.index');
+        Route::get('admins/create',             [AdminController::class, 'create'])->name('admins.create');
+        Route::post('admins',                   [AdminController::class, 'store'])->name('admins.store');
+        Route::get('admins/{admin}/edit',       [AdminController::class, 'edit'])->name('admins.edit');
+        Route::put('admins/{admin}',            [AdminController::class, 'update'])->name('admins.update');
+        Route::delete('admins/{admin}',         [AdminController::class, 'destroy'])->name('admins.destroy');
         Route::get('profile',         [AdminController::class, 'editProfile'])->name('profile');
         Route::post('profile',        [AdminController::class, 'updateProfile'])->name('profile.update');
     });

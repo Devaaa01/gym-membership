@@ -51,6 +51,10 @@
                 <td class="small text-muted">{{ $admin->email }}</td>
                 <td class="small text-muted">{{ $admin->created_at->format('d M Y') }}</td>
                 <td class="text-end pe-4">
+                    <a href="{{ route('admin.admins.edit', $admin) }}"
+                       class="btn btn-sm btn-outline-secondary me-1">
+                        <i class="bi bi-pencil"></i>
+                    </a>
                     @if($admin->id !== auth()->id())
                     <form action="{{ route('admin.admins.destroy', $admin) }}" method="POST" class="d-inline"
                           onsubmit="return confirm('Delete admin account for {{ $admin->name }}?')">
