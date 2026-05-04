@@ -31,8 +31,8 @@
                             {{ strtoupper(substr($admin->name, 0, 1)) }}
                         </div>
                         <img src="" alt="" id="photoPreview"
-                             class="rounded-circle object-fit-cover d-none mx-auto mb-3 d-block"
-                             style="width:100px;height:100px;object-fit:cover;border:3px solid #e63946">
+                             class="rounded-circle d-none mx-auto mb-3"
+                             style="width:100px;height:100px;object-fit:cover;border:3px solid #e63946;display:none!important">
                     @endif
                     <div class="fw-semibold">{{ $admin->name }}</div>
                     <div class="text-muted small">{{ $admin->email }}</div>
@@ -81,8 +81,9 @@
         const reader  = new FileReader();
         reader.onload = function (e) {
             preview.src = e.target.result;
+            preview.style.display = 'block';
             preview.classList.remove('d-none');
-            if (initial) initial.classList.add('d-none');
+            if (initial) initial.style.display = 'none';
         };
         reader.readAsDataURL(file);
     });
