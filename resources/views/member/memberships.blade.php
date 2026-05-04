@@ -73,7 +73,7 @@
                 <div class="text-danger fw-bold fs-4 mb-1">{{ $plan->formatted_price }}</div>
                 <div class="text-muted small mb-3">/ {{ $plan->duration_months }} month{{ $plan->duration_months > 1 ? 's' : '' }}</div>
                 <p class="text-muted small mb-3">{{ $plan->description }}</p>
-                <ul class="list-unstyled small mb-0">
+                <ul class="list-unstyled small mb-3">
                     <li class="mb-1"><i class="bi bi-check-circle-fill text-success me-2"></i>
                         {{ $plan->max_classes == 0 ? 'Unlimited classes' : $plan->max_classes . ' classes/month' }}
                     </li>
@@ -82,6 +82,17 @@
                         Personal Trainer
                     </li>
                 </ul>
+                @if($member->activeMembership?->plan_id == $plan->id)
+                    <span class="btn btn-sm btn-outline-danger w-100 disabled">Current Plan</span>
+                @else
+                    <form method="POST" action="{{ route('member.payment.subscribe') }}">
+                        @csrf
+                        <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
+                            <i class="bi bi-credit-card me-1"></i>Subscribe & Pay
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

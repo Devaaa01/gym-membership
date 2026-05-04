@@ -1,289 +1,337 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — FitLife Gym</title>
+    <title>Admin Login — FitLife Gym</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
 
-        body {
-            min-height: 100vh;
-            background: #0f0f1a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
+        /* ── Theme variables ── */
+        :root {
+            --bg:           #fff;
+            --bg-input:     #f7f8fc;
+            --border:       #e8ecf0;
+            --text:         #1a202c;
+            --text-sub:     #718096;
+            --text-label:   #4a5568;
+            --text-muted:   #a0aec0;
+            --divider:      #edf2f7;
+            --demo-bg:      #f7f8fc;
+            --demo-border:  #e8ecf0;
+            --demo-text:    #718096;
+            --demo-strong:  #4a5568;
+            --err-bg:       #fff5f5;
+            --err-border:   #fed7d7;
+            --err-text:     #c53030;
+            --ok-bg:        #f0fff4;
+            --ok-border:    #c6f6d5;
+            --ok-text:      #276749;
+            --toggle-bg:    #f0f2f5;
+            --toggle-color: #718096;
+        }
+        [data-theme="dark"] {
+            --bg:           #141720;
+            --bg-input:     #1e2235;
+            --border:       #2d3250;
+            --text:         #f0f2f5;
+            --text-sub:     #8892a4;
+            --text-label:   #9aa5b4;
+            --text-muted:   #5a6478;
+            --divider:      #1e2235;
+            --demo-bg:      #1e2235;
+            --demo-border:  #2d3250;
+            --demo-text:    #8892a4;
+            --demo-strong:  #c5cdd8;
+            --err-bg:       rgba(197,48,48,.12);
+            --err-border:   rgba(197,48,48,.3);
+            --err-text:     #fc8181;
+            --ok-bg:        rgba(39,103,73,.15);
+            --ok-border:    rgba(39,103,73,.3);
+            --ok-text:      #68d391;
+            --toggle-bg:    #1e2235;
+            --toggle-color: #8892a4;
         }
 
-        /* Animated background blobs */
-        body::before, body::after {
-            content: '';
-            position: fixed;
+        .page { display: flex; height: 100vh; min-height: 100vh; }
+
+        /* ── Form side ── */
+        .form-side {
+            width: 480px; min-width: 480px;
+            background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 3rem 3.5rem;
+            overflow-y: auto;
+            transition: background .3s, color .3s;
+            position: relative;
+        }
+
+        /* ── Theme toggle button ── */
+        .theme-toggle {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            width: 36px; height: 36px;
+            background: var(--toggle-bg);
+            border: 1.5px solid var(--border);
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: .35;
-            animation: float 8s ease-in-out infinite;
-        }
-        body::before {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, #e63946, #c1121f);
-            top: -150px; left: -150px;
-        }
-        body::after {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, #4361ee, #3a0ca3);
-            bottom: -100px; right: -100px;
-            animation-delay: -4s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50%       { transform: translate(30px, 20px) scale(1.05); }
-        }
-
-        .login-card {
-            background: rgba(255,255,255,.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: 24px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 25px 50px rgba(0,0,0,.5);
-        }
-
-        .brand-logo {
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, #e63946, #c1121f);
-            border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.6rem; color: #fff;
-            margin: 0 auto 1rem;
-            box-shadow: 0 8px 20px rgba(230,57,70,.4);
+            cursor: pointer;
+            color: var(--toggle-color);
+            font-size: 1rem;
+            transition: background .3s, border-color .3s, color .3s, transform .2s;
         }
+        .theme-toggle:hover { transform: rotate(20deg); color: #e63946; }
 
-        .login-title {
-            font-size: 1.6rem; font-weight: 800;
-            color: #fff; text-align: center; margin-bottom: .25rem;
+        .brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2.5rem; }
+        .brand-icon {
+            width: 40px; height: 40px; background: #e63946;
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; color: #fff; font-size: 1.1rem;
         }
-        .login-subtitle {
-            color: rgba(255,255,255,.5); text-align: center;
-            font-size: .875rem; margin-bottom: 2rem;
-        }
+        .brand-name { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .brand-tag  { font-size: .72rem; color: var(--text-muted); font-weight: 500; }
+
+        .form-heading { font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: .35rem; }
+        .form-sub     { font-size: .875rem; color: var(--text-sub); margin-bottom: 2rem; }
 
         .form-label {
-            color: rgba(255,255,255,.7);
-            font-size: .8rem; font-weight: 600;
-            letter-spacing: .04em; text-transform: uppercase;
+            font-size: .78rem; font-weight: 600; color: var(--text-label);
+            letter-spacing: .03em; text-transform: uppercase;
+            margin-bottom: .4rem; display: block;
         }
-
-        .form-control {
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(255,255,255,.12);
-            border-radius: 10px;
-            color: #fff;
-            padding: .75rem 1rem;
-            font-size: .9rem;
-            transition: all .2s;
+        .input-wrap { position: relative; margin-bottom: 1.25rem; }
+        .input-icon {
+            position: absolute; left: .9rem; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: .95rem; pointer-events: none;
         }
-        .form-control:focus {
-            background: rgba(255,255,255,.1);
-            border-color: #e63946;
-            box-shadow: 0 0 0 3px rgba(230,57,70,.2);
-            color: #fff;
-        }
-        .form-control::placeholder { color: rgba(255,255,255,.3); }
-        .form-control.is-invalid {
-            border-color: #f87171;
-            background: rgba(248,113,113,.08);
-        }
-        .invalid-feedback { color: #f87171; font-size: .8rem; }
-
-        .input-group-text {
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(255,255,255,.12);
-            border-right: none;
-            color: rgba(255,255,255,.4);
-            border-radius: 10px 0 0 10px;
-        }
-        .input-group .form-control { border-left: none; border-radius: 0 10px 10px 0; }
-        .input-group .form-control:focus { border-left: none; }
-
-        .btn-login {
-            background: linear-gradient(135deg, #e63946, #c1121f);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-weight: 600;
-            padding: .8rem;
-            font-size: .95rem;
+        .form-input {
             width: 100%;
-            transition: all .2s;
-            box-shadow: 0 4px 15px rgba(230,57,70,.35);
+            background: var(--bg-input);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            padding: .72rem 1rem .72rem 2.5rem;
+            font-size: .9rem; font-family: 'Inter', sans-serif;
+            transition: border-color .2s, box-shadow .2s, background .3s, color .3s;
+            outline: none;
         }
-        .btn-login:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(230,57,70,.5);
-            color: #fff;
-        }
-        .btn-login:active { transform: translateY(0); }
-
-        .form-check-input {
-            background-color: rgba(255,255,255,.1);
-            border-color: rgba(255,255,255,.2);
-        }
-        .form-check-input:checked {
-            background-color: #e63946;
+        .form-input:focus {
+            background: var(--bg);
             border-color: #e63946;
+            box-shadow: 0 0 0 3px rgba(230,57,70,.12);
         }
-        .form-check-label { color: rgba(255,255,255,.6); font-size: .85rem; }
+        .form-input::placeholder { color: var(--text-muted); }
+        .form-input.has-toggle { padding-right: 2.75rem; }
+
+        .toggle-pw {
+            position: absolute; right: .9rem; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; padding: 0; font-size: .95rem; transition: color .2s;
+        }
+        .toggle-pw:hover { color: var(--text); }
+
+        .row-between {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .check-label {
+            display: flex; align-items: center; gap: .5rem;
+            font-size: .85rem; color: var(--text-sub); cursor: pointer;
+        }
+        .check-label input[type=checkbox] { accent-color: #e63946; width: 15px; height: 15px; }
+
+        .btn-submit {
+            width: 100%; background: #e63946; border: none; border-radius: 10px;
+            color: #fff; font-weight: 600; font-size: .95rem;
+            font-family: 'Inter', sans-serif; padding: .8rem; cursor: pointer;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 4px 14px rgba(230,57,70,.3);
+        }
+        .btn-submit:hover {
+            background: #c1121f; transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(230,57,70,.4);
+        }
+        .btn-submit:active { transform: translateY(0); }
 
         .divider {
-            display: flex; align-items: center; gap: 1rem;
-            color: rgba(255,255,255,.2); font-size: .75rem; margin: 1.5rem 0;
+            display: flex; align-items: center; gap: .75rem;
+            color: var(--text-muted); font-size: .75rem; margin: 1.5rem 0;
         }
         .divider::before, .divider::after {
-            content: ''; flex: 1;
-            height: 1px; background: rgba(255,255,255,.1);
+            content: ''; flex: 1; height: 1px; background: var(--divider);
         }
 
         .demo-box {
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 10px;
-            padding: .875rem 1rem;
-            font-size: .8rem;
-            color: rgba(255,255,255,.5);
+            background: var(--demo-bg); border: 1.5px solid var(--demo-border);
+            border-radius: 10px; padding: .875rem 1rem;
+            font-size: .82rem; color: var(--demo-text);
         }
-        .demo-box strong { color: rgba(255,255,255,.8); }
+        .demo-box strong { color: var(--demo-strong); }
 
-        .alert-danger-dark {
-            background: rgba(248,113,113,.12);
-            border: 1px solid rgba(248,113,113,.25);
-            border-radius: 10px;
-            color: #f87171;
-            padding: .75rem 1rem;
-            font-size: .85rem;
-            margin-bottom: 1.25rem;
+        .alert-msg {
+            border-radius: 10px; padding: .7rem 1rem; font-size: .85rem;
+            margin-bottom: 1.25rem; display: flex; align-items: center; gap: .5rem;
         }
+        .alert-error   { background: var(--err-bg); border: 1.5px solid var(--err-border); color: var(--err-text); }
+        .alert-success { background: var(--ok-bg);  border: 1.5px solid var(--ok-border);  color: var(--ok-text); }
 
-        .alert-success-dark {
-            background: rgba(52,211,153,.12);
-            border: 1px solid rgba(52,211,153,.25);
-            border-radius: 10px;
-            color: #34d399;
-            padding: .75rem 1rem;
-            font-size: .85rem;
-            margin-bottom: 1.25rem;
+        .member-link {
+            margin-top: 1.5rem; font-size: .82rem;
+            color: var(--text-muted); text-align: center;
         }
+        .member-link a { color: #e63946; text-decoration: none; font-weight: 600; }
+        .member-link a:hover { text-decoration: underline; }
 
-        /* Toggle password visibility */
-        .toggle-pw {
-            background: rgba(255,255,255,.07);
-            border: 1px solid rgba(255,255,255,.12);
-            border-left: none;
-            color: rgba(255,255,255,.4);
-            border-radius: 0 10px 10px 0;
-            cursor: pointer;
-            padding: 0 .875rem;
-            transition: color .2s;
+        /* ── Image side ── */
+        .image-side {
+            flex: 1;
+            background-image: url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1400&q=80');
+            background-size: cover; background-position: center; position: relative;
         }
-        .toggle-pw:hover { color: rgba(255,255,255,.8); }
+        .image-side::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.5) 100%);
+        }
+        .image-overlay {
+            position: absolute; bottom: 2.5rem; left: 2.5rem; right: 2.5rem; z-index: 1;
+        }
+        .image-quote {
+            font-size: 1.5rem; font-weight: 700; color: #fff;
+            line-height: 1.4; margin-bottom: .5rem;
+        }
+        .image-caption { font-size: .875rem; color: rgba(255,255,255,.65); }
+
+        @media (max-width: 768px) {
+            .image-side { display: none; }
+            .form-side  { width: 100%; min-width: unset; padding: 2.5rem 1.75rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <!-- Brand -->
-    <div class="brand-logo">
-        <i class="bi bi-lightning-charge-fill"></i>
-    </div>
-    <div class="login-title">FitLife Gym</div>
-    <div class="login-subtitle">Management System — Admin Portal</div>
+<div class="page">
 
-    <!-- Flash messages -->
-    @if(session('success'))
-    <div class="alert-success-dark">
-        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-    </div>
-    @endif
+    <!-- Left: Form -->
+    <div class="form-side">
 
-    @if($errors->any())
-    <div class="alert-danger-dark">
-        <i class="bi bi-exclamation-circle me-2"></i>{{ $errors->first() }}
-    </div>
-    @endif
-
-    <!-- Login Form -->
-    <form method="POST" action="{{ route('login.post') }}">
-        @csrf
-
-        <div class="mb-3">
-            <label class="form-label">Email Address</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                <input type="email" name="email"
-                       class="form-control @error('email') is-invalid @enderror"
-                       value="{{ old('email') }}"
-                       placeholder="admin@fitlife.com"
-                       autocomplete="email" autofocus required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                <input type="password" name="password" id="passwordInput"
-                       class="form-control @error('password') is-invalid @enderror"
-                       placeholder="••••••••"
-                       autocomplete="current-password" required>
-                <button type="button" class="toggle-pw" id="togglePw" tabindex="-1">
-                    <i class="bi bi-eye" id="togglePwIcon"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                <label class="form-check-label" for="remember">Remember me</label>
-            </div>
-        </div>
-
-        <button type="submit" class="btn-login">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+        <!-- Theme toggle -->
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode" tabindex="-1">
+            <i class="bi bi-moon-fill" id="themeIcon"></i>
         </button>
-    </form>
 
-    <div class="divider">Demo Credentials</div>
+        <div class="brand">
+            <div class="brand-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div>
+                <div class="brand-name">FitLife Gym</div>
+                <div class="brand-tag">ADMIN PORTAL</div>
+            </div>
+        </div>
 
-    <div class="demo-box">
-        <div class="mb-1"><i class="bi bi-person-circle me-2"></i><strong>Email:</strong> admin@fitlife.com</div>
-        <div><i class="bi bi-key me-2"></i><strong>Password:</strong> password</div>
+        <div class="form-heading">Sign in</div>
+        <div class="form-sub">Enter your credentials to access the admin panel</div>
+
+        @if(session('success'))
+        <div class="alert-msg alert-success">
+            <i class="bi bi-check-circle-fill"></i>{{ session('success') }}
+        </div>
+        @endif
+
+        @if($errors->any())
+        <div class="alert-msg alert-error">
+            <i class="bi bi-exclamation-circle-fill"></i>{{ $errors->first() }}
+        </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.post') }}">
+            @csrf
+
+            <div>
+                <label class="form-label">Email Address</label>
+                <div class="input-wrap">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email" name="email" class="form-input"
+                           value="{{ old('email') }}"
+                           placeholder="admin@fitlife.com"
+                           autocomplete="email" autofocus required>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label">Password</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input type="password" name="password" id="pw" class="form-input has-toggle"
+                           placeholder="••••••••"
+                           autocomplete="current-password" required>
+                    <button type="button" class="toggle-pw" id="togglePw" tabindex="-1">
+                        <i class="bi bi-eye" id="pwIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row-between">
+                <label class="check-label">
+                    <input type="checkbox" name="remember"> Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </button>
+        </form>
+
+        <div class="divider">Demo Credentials</div>
+
+        <div class="demo-box">
+            <div class="mb-1"><i class="bi bi-person-circle me-2"></i><strong>Email:</strong> admin@fitlife.com</div>
+            <div><i class="bi bi-key me-2"></i><strong>Password:</strong> password</div>
+        </div>
+
+        <div class="member-link">
+            Not staff? <a href="{{ route('member.login') }}">Go to Member Portal</a>
+        </div>
+
     </div>
+
+    <!-- Right: Image -->
+    <div class="image-side">
+        <div class="image-overlay">
+            <div class="image-quote">"Push your limits,<br>track your progress."</div>
+            <div class="image-caption">FitLife Gym Management System</div>
+        </div>
+    </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Toggle password visibility
+    // ── Password toggle ──
     document.getElementById('togglePw').addEventListener('click', function () {
-        const input = document.getElementById('passwordInput');
-        const icon  = document.getElementById('togglePwIcon');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.className = 'bi bi-eye-slash';
-        } else {
-            input.type = 'password';
-            icon.className = 'bi bi-eye';
-        }
+        const input = document.getElementById('pw');
+        const icon  = document.getElementById('pwIcon');
+        input.type  = input.type === 'password' ? 'text' : 'password';
+        icon.className = input.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    });
+
+    // ── Dark / Light mode toggle ──
+    const html      = document.documentElement;
+    const btn       = document.getElementById('themeToggle');
+    const icon      = document.getElementById('themeIcon');
+    const STORE_KEY = 'fitlife_theme';
+
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        localStorage.setItem(STORE_KEY, theme);
+    }
+
+    // Load saved preference
+    applyTheme(localStorage.getItem(STORE_KEY) || 'light');
+
+    btn.addEventListener('click', function () {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 </script>
 </body>

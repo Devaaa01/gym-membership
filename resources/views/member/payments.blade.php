@@ -2,9 +2,14 @@
 @section('title', 'My Payments')
 
 @section('content')
-<div class="page-header">
-    <h1><i class="bi bi-credit-card me-2 text-danger"></i>Payment History</h1>
-    <p>All your membership payment records</p>
+<div class="page-header d-flex align-items-center justify-content-between">
+    <div>
+        <h1><i class="bi bi-credit-card me-2 text-danger"></i>Payment History</h1>
+        <p>All your membership payment records</p>
+    </div>
+    <a href="{{ route('member.payment.form') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Make a Payment
+    </a>
 </div>
 
 <div class="card">

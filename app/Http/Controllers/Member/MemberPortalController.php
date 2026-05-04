@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\GymClass;
 use App\Models\ClassBooking;
+use App\Models\Membership;
 use App\Models\MembershipPlan;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -46,8 +48,10 @@ class MemberPortalController extends Controller
             ->take(5)
             ->get();
 
+        $hasActiveMembership = $member->activeMembership !== null;
+
         return view('member.dashboard', compact(
-            'member', 'upcomingBookings', 'availableClasses', 'recentPayments'
+            'member', 'upcomingBookings', 'availableClasses', 'recentPayments', 'hasActiveMembership'
         ));
     }
 
@@ -71,7 +75,18 @@ class MemberPortalController extends Controller
             'address'                 => 'nullable|string|max:500',
             'emergency_contact_name'  => 'nullable|string|max:100',
             'emergency_contact_phone' => 'nullable|string|max:20',
+            'photo'                   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($member->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($member->photo);
+            }
+            $validated['photo'] = $request->file('photo')->store('members', 'public');
+        } else {
+            unset($validated['photo']);
+        }
 
         $member->update($validated);
 
@@ -128,12 +143,19 @@ class MemberPortalController extends Controller
             ->pluck('class_id')
             ->toArray();
 
-        return view('member.classes', compact('classes', 'categories', 'bookedIds'));
+        $hasActiveMembership = $member->activeMembership !== null;
+
+        return view('member.classes', compact('classes', 'categories', 'bookedIds', 'hasActiveMembership'));
     }
 
     public function bookClass(Request $request, GymClass $class)
     {
         $member = $this->member();
+
+        // Must have an active membership to book
+        if (!$member->activeMembership) {
+            return back()->with('error', 'You need an active membership to book classes. Please subscribe to a plan first.');
+        }
 
         // Already booked?
         if (ClassBooking::where('member_id', $member->id)->where('class_id', $class->id)->exists()) {
@@ -175,5 +197,119 @@ class MemberPortalController extends Controller
         $payments = $member->payments()->with('membership.plan')->latest()->paginate(10);
 
         return view('member.payments', compact('member', 'payments'));
+    }
+
+    // ── Pay for a membership (show form) ─────────────────────────────────
+    public function showPaymentForm(Request $request)
+    {
+        $member = $this->member();
+
+        // Pending memberships the member can pay for
+        $pendingMemberships = $member->memberships()
+            ->with('plan')
+            ->where('status', 'pending')
+            ->get();
+
+        // All active plans (for subscribing to a new one)
+        $plans = MembershipPlan::where('is_active', true)->orderBy('price')->get();
+
+        $selectedMembership = $request->membership_id
+            ? $member->memberships()->with('plan')->find($request->membership_id)
+            : $pendingMemberships->first();
+
+        return view('member.payment-form', compact(
+            'member', 'pendingMemberships', 'plans', 'selectedMembership'
+        ));
+    }
+
+    // ── Subscribe to a new plan (creates membership + processes payment) ──
+    public function subscribePlan(Request $request)
+    {
+        $member = $this->member();
+
+        $validated = $request->validate([
+            'plan_id'        => 'required|exists:membership_plans,id',
+            'payment_method' => 'required|in:cash,credit_card,debit_card,bank_transfer,e_wallet',
+        ]);
+
+        $plan = MembershipPlan::findOrFail($validated['plan_id']);
+
+        // Create the pending membership
+        $membership = $member->memberships()->create([
+            'plan_id'    => $plan->id,
+            'start_date' => now(),
+            'end_date'   => now()->addMonths($plan->duration_months)->subDay(),
+            'status'     => 'pending',
+        ]);
+
+        // Immediately record payment and activate
+        $payment = Payment::create([
+            'member_id'      => $member->id,
+            'membership_id'  => $membership->id,
+            'amount'         => $plan->price,
+            'payment_method' => $validated['payment_method'],
+            'status'         => 'paid',
+            'payment_date'   => now()->toDateString(),
+            'notes'          => 'Self-service payment by member.',
+        ]);
+
+        $membership->update(['status' => 'active']);
+
+        return redirect()->route('member.payment.success', $payment)
+            ->with('success', 'Payment successful! Your membership is now active.');
+    }
+
+    // ── Process payment ───────────────────────────────────────────────────
+    public function processPayment(Request $request)
+    {
+        $member = $this->member();
+
+        $validated = $request->validate([
+            'membership_id'  => 'required|exists:memberships,id',
+            'payment_method' => 'required|in:cash,credit_card,debit_card,bank_transfer,e_wallet',
+        ]);
+
+        // Make sure this membership belongs to the logged-in member
+        $membership = $member->memberships()->with('plan')->find($validated['membership_id']);
+
+        if (!$membership) {
+            return back()->with('error', 'Membership not found.');
+        }
+
+        if ($membership->status !== 'pending') {
+            return back()->with('error', 'This membership has already been paid or is not payable.');
+        }
+
+        // Create the payment record as paid
+        $payment = Payment::create([
+            'member_id'      => $member->id,
+            'membership_id'  => $membership->id,
+            'amount'         => $membership->plan->price,
+            'payment_method' => $validated['payment_method'],
+            'status'         => 'paid',
+            'payment_date'   => now()->toDateString(),
+            'notes'          => 'Self-service payment by member.',
+        ]);
+
+        // Activate the membership
+        $membership->update(['status' => 'active']);
+
+        return redirect()->route('member.payment.success', $payment)
+            ->with('success', 'Payment successful! Your membership is now active.');
+    }
+
+    // ── Payment success page ──────────────────────────────────────────────
+    public function paymentSuccess(Payment $payment)
+    {
+        $member = $this->member();
+
+        // Security: only the owner can view
+        if ($payment->member_id !== $member->id) {
+            abort(403);
+        }
+
+        $payment->load('membership.plan');
+
+        return view('member.payment-success', compact('payment'));
     }
 }

@@ -31,6 +31,13 @@
 </div>
 
 <!-- Class grid -->
+@if(!$hasActiveMembership)
+<div class="alert alert-warning rounded-3 border-0 shadow-sm mb-4">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    You don't have an active membership. <a href="{{ route('member.payment.form') }}" class="alert-link">Subscribe to a plan</a> to book classes.
+</div>
+@endif
+
 <div class="row g-4">
 @forelse($classes as $class)
 @php
@@ -99,6 +106,10 @@
                 </button>
             @elseif($spots <= 0)
                 <button class="btn btn-outline-secondary w-100" disabled>Class Full</button>
+            @elseif(!$hasActiveMembership)
+                <a href="{{ route('member.payment.form') }}" class="btn btn-outline-warning w-100">
+                    <i class="bi bi-lock me-1"></i>Active Membership Required
+                </a>
             @else
                 <form method="POST" action="{{ route('member.classes.book', $class) }}">
                     @csrf

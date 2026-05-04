@@ -12,7 +12,7 @@
     <!-- Membership status -->
     <div class="col-sm-6 col-xl-3">
         @if($member->activeMembership)
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#e63946,#c1121f)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#e05c8a,#d4527f)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-white" style="font-size:1.1rem">{{ $member->activeMembership->plan->name }}</div>
@@ -39,7 +39,7 @@
 
     <!-- Upcoming bookings -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#3a9bd5,#3090cc)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-white" style="font-size:1.8rem">{{ $upcomingBookings->count() }}</div>
@@ -57,7 +57,7 @@
 
     <!-- Total classes attended -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#2eaa72,#27996a)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-white" style="font-size:1.8rem">
@@ -77,7 +77,7 @@
 
     <!-- Total paid -->
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#4f6ef7,#6a85f5)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-white" style="font-size:1.1rem">
@@ -107,7 +107,7 @@
             <div class="card-body p-0">
                 @forelse($upcomingBookings as $booking)
                 <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                    <div class="text-center rounded-3 p-2" style="background:#fff5f5;min-width:50px">
+                    <div class="text-center rounded-3 p-2" style="background:rgba(230,57,70,.08);min-width:50px">
                         <div class="fw-bold text-danger" style="font-size:.9rem">{{ $booking->gymClass->schedule->format('d') }}</div>
                         <div class="text-muted" style="font-size:.65rem">{{ $booking->gymClass->schedule->format('M') }}</div>
                     </div>
@@ -148,7 +148,7 @@
                 @foreach($availableClasses as $class)
                 @php $spots = $class->max_capacity - $class->bookings()->whereIn('status',['booked','attended'])->count(); @endphp
                 <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                    <div class="text-center rounded-3 p-2" style="background:#f0f2f5;min-width:50px">
+                    <div class="text-center rounded-3 p-2" style="background:var(--input-bg);min-width:50px">
                         <div class="fw-bold" style="font-size:.9rem">{{ $class->schedule->format('d') }}</div>
                         <div class="text-muted" style="font-size:.65rem">{{ $class->schedule->format('M') }}</div>
                     </div>
@@ -161,8 +161,8 @@
                     </div>
                     <form method="POST" action="{{ route('member.classes.book', $class) }}">
                         @csrf
-                        <button class="btn btn-sm btn-primary" {{ $spots <= 0 ? 'disabled' : '' }}>
-                            Book
+                        <button class="btn btn-sm btn-primary" {{ ($spots <= 0 || !$hasActiveMembership) ? 'disabled' : '' }}>
+                            {{ $spots <= 0 ? 'Full' : ($hasActiveMembership ? 'Book' : 'No Plan') }}
                         </button>
                     </form>
                 </div>

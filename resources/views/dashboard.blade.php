@@ -15,13 +15,13 @@
 <!-- Stat Cards -->
 <div class="row g-4 mb-4">
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#4f6ef7,#6a85f5)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="stat-value text-white">{{ $totalMembers }}</div>
                     <div class="stat-label text-white opacity-75">Total Members</div>
                 </div>
-                <div class="stat-icon" style="background:rgba(255,255,255,.2)">
+                <div class="stat-icon" style="background:rgba(255,255,255,.15)">
                     <i class="bi bi-people-fill text-white"></i>
                 </div>
             </div>
@@ -31,13 +31,13 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#e05c8a,#d4527f)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="stat-value text-white">{{ $activeMemberships }}</div>
                     <div class="stat-label text-white opacity-75">Active Memberships</div>
                 </div>
-                <div class="stat-icon" style="background:rgba(255,255,255,.2)">
+                <div class="stat-icon" style="background:rgba(255,255,255,.15)">
                     <i class="bi bi-card-checklist text-white"></i>
                 </div>
             </div>
@@ -47,13 +47,13 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#3a9bd5,#3090cc)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="stat-value text-white">Rp {{ number_format($monthlyRevenue/1000,0) }}K</div>
                     <div class="stat-label text-white opacity-75">Monthly Revenue</div>
                 </div>
-                <div class="stat-icon" style="background:rgba(255,255,255,.2)">
+                <div class="stat-icon" style="background:rgba(255,255,255,.15)">
                     <i class="bi bi-graph-up-arrow text-white"></i>
                 </div>
             </div>
@@ -63,13 +63,13 @@
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+        <div class="stat-card card h-100" style="background:linear-gradient(135deg,#2eaa72,#27996a)">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="stat-value text-white">Rp {{ number_format($totalRevenue/1000000,1) }}M</div>
                     <div class="stat-label text-white opacity-75">Total Revenue</div>
                 </div>
-                <div class="stat-icon" style="background:rgba(255,255,255,.2)">
+                <div class="stat-icon" style="background:rgba(255,255,255,.15)">
                     <i class="bi bi-currency-dollar text-white"></i>
                 </div>
             </div>
@@ -201,7 +201,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 const ctx = document.getElementById('revenueChart').getContext('2d');
-new Chart(ctx, {
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+const gridColor = isDark ? '#252836' : '#f0f2f5';
+const tickColor = isDark ? '#8892a4' : '#718096';
+
+const chart = new Chart(ctx, {
     type: 'bar',
     data: {
         labels: {!! json_encode(array_column($revenueChart, 'month')) !!},
@@ -220,13 +224,28 @@ new Chart(ctx, {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    callback: v => 'Rp ' + (v/1000).toFixed(0) + 'K'
+                    callback: v => 'Rp ' + (v/1000).toFixed(0) + 'K',
+                    color: tickColor,
                 },
-                grid: { color: '#f0f2f5' }
+                grid: { color: gridColor }
             },
-            x: { grid: { display: false } }
+            x: {
+                grid: { display: false },
+                ticks: { color: tickColor }
+            }
         }
     }
+});
+
+// Update chart colors when theme toggles
+document.getElementById('themeToggle').addEventListener('click', function () {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gc = dark ? '#252836' : '#f0f2f5';
+    const tc = dark ? '#8892a4' : '#718096';
+    chart.options.scales.y.grid.color = gc;
+    chart.options.scales.y.ticks.color = tc;
+    chart.options.scales.x.ticks.color = tc;
+    chart.update();
 });
 </script>
 @endpush

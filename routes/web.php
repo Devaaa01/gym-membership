@@ -14,6 +14,11 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Member\MemberAuthController;
 use App\Http\Controllers\Member\MemberPortalController;
 
+// Root → redirect to member login
+Route::get('/', function () {
+    return redirect()->route('member.login');
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  ADMIN PANEL  (guard: web / User model)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -29,7 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 // Admin protected routes
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('members',     MemberController::class);
     Route::resource('plans',       MembershipPlanController::class);
@@ -45,6 +50,8 @@ Route::middleware('auth')->group(function () {
         Route::get('admins/create',   [AdminController::class, 'create'])->name('admins.create');
         Route::post('admins',         [AdminController::class, 'store'])->name('admins.store');
         Route::delete('admins/{admin}', [AdminController::class, 'destroy'])->name('admins.destroy');
+        Route::get('profile',         [AdminController::class, 'editProfile'])->name('profile');
+        Route::post('profile',        [AdminController::class, 'updateProfile'])->name('profile.update');
     });
 });
 
@@ -76,5 +83,9 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::post('classes/{class}/book',   [MemberPortalController::class, 'bookClass'])->name('classes.book');
         Route::delete('bookings/{booking}/cancel', [MemberPortalController::class, 'cancelBooking'])->name('bookings.cancel');
         Route::get('payments',    [MemberPortalController::class, 'payments'])->name('payments');
+        Route::get('payment/pay',    [MemberPortalController::class, 'showPaymentForm'])->name('payment.form');
+        Route::post('payment/subscribe', [MemberPortalController::class, 'subscribePlan'])->name('payment.subscribe');
+        Route::post('payment/process',   [MemberPortalController::class, 'processPayment'])->name('payment.process');
+        Route::get('payment/{payment}/success', [MemberPortalController::class, 'paymentSuccess'])->name('payment.success');
     });
 });

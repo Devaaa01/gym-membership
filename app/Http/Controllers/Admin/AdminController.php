@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class AdminController extends Controller
@@ -41,18 +43,38 @@ class AdminController extends Controller
 
     public function destroy(User $admin)
     {
-        // Prevent deleting yourself
         if ($admin->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }
-
-        // Prevent deleting the last admin
         if (User::count() <= 1) {
             return back()->with('error', 'Cannot delete the last admin account.');
         }
-
         $admin->delete();
-
         return back()->with('success', 'Admin account deleted.');
+    }
+
+    // ── Profile ───────────────────────────────────────────────────────────
+    public function editProfile()
+    {
+        return view('admin.profile', ['admin' => Auth::user()]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $admin = Auth::user();
+
+        $request->validate([
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            if ($admin->photo) {
+                Storage::disk('public')->delete($admin->photo);
+            }
+            $admin->photo = $request->file('photo')->store('admins', 'public');
+            $admin->save();
+        }
+
+        return back()->with('success', 'Profile photo updated!');
     }
 }

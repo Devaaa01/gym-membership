@@ -30,10 +30,16 @@
             <tr>
                 <td class="ps-4">
                     <div class="d-flex align-items-center gap-2">
+                        @if($admin->photo)
+                            <img src="{{ asset('storage/' . $admin->photo) }}"
+                                 class="rounded-circle object-fit-cover"
+                                 style="width:36px;height:36px;object-fit:cover;min-width:36px" alt="">
+                        @else
                         <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold"
                              style="width:36px;height:36px;background:{{ $admin->id === auth()->id() ? '#e63946' : '#6366f1' }};color:#fff;font-size:.875rem;min-width:36px">
                             {{ strtoupper(substr($admin->name,0,1)) }}
                         </div>
+                        @endif
                         <div>
                             <div class="fw-semibold small">{{ $admin->name }}</div>
                             @if($admin->id === auth()->id())

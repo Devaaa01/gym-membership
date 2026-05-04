@@ -15,14 +15,51 @@
                 <h6 class="mb-0 fw-semibold"><i class="bi bi-person me-2 text-danger"></i>Personal Information</h6>
             </div>
             <div class="card-body p-4">
-                @if($errors->hasBag('default') || $errors->any())
+                @if($errors->any())
                 <div class="alert alert-danger rounded-3 border-0 mb-3">
                     <ul class="mb-0 ps-3 small">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
                 </div>
                 @endif
 
-                <form method="POST" action="{{ route('member.profile.update') }}">
+                <form method="POST" action="{{ route('member.profile.update') }}" enctype="multipart/form-data">
                     @csrf @method('PUT')
+
+                    {{-- ── Profile photo upload ── --}}
+                    <div class="mb-4 d-flex align-items-center gap-4">
+                        <div class="position-relative" style="flex-shrink:0">
+                            @if($member->photo)
+                                <img src="{{ asset('storage/' . $member->photo) }}"
+                                     alt="Profile photo"
+                                     id="photoPreview"
+                                     class="rounded-circle object-fit-cover"
+                                     style="width:80px;height:80px;object-fit:cover;border:3px solid #e63946">
+                            @else
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                     id="photoInitial"
+                                     style="width:80px;height:80px;background:#e63946;color:#fff;font-size:1.8rem;flex-shrink:0">
+                                    {{ strtoupper(substr($member->first_name,0,1)) }}
+                                </div>
+                                <img src="" alt="" id="photoPreview"
+                                     class="rounded-circle object-fit-cover d-none"
+                                     style="width:80px;height:80px;object-fit:cover;border:3px solid #e63946">
+                            @endif
+                            <label for="photoInput"
+                                   class="position-absolute bottom-0 end-0 d-flex align-items-center justify-content-center rounded-circle"
+                                   style="width:26px;height:26px;background:#e63946;cursor:pointer;border:2px solid #fff"
+                                   title="Change photo">
+                                <i class="bi bi-camera-fill text-white" style="font-size:.65rem"></i>
+                            </label>
+                        </div>
+                        <div>
+                            <div class="fw-semibold small" style="color:var(--text-primary)">Profile Photo</div>
+                            <div class="text-muted" style="font-size:.78rem">JPG, PNG or WebP · Max 2MB</div>
+                            <label for="photoInput" class="btn btn-sm btn-outline-secondary mt-1" style="font-size:.78rem">
+                                <i class="bi bi-upload me-1"></i>Upload Photo
+                            </label>
+                        </div>
+                        <input type="file" name="photo" id="photoInput" accept="image/*" class="d-none">
+                    </div>
+
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">First Name <span class="text-danger">*</span></label>
@@ -90,10 +127,17 @@
         <!-- Member card -->
         <div class="card mb-4" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
             <div class="card-body p-4 text-center">
-                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold"
-                     style="width:72px;height:72px;background:#e63946;color:#fff;font-size:1.8rem">
-                    {{ strtoupper(substr($member->first_name,0,1)) }}
-                </div>
+                @if($member->photo)
+                    <img src="{{ asset('storage/' . $member->photo) }}"
+                         alt="{{ $member->full_name }}"
+                         class="rounded-circle mx-auto mb-3 d-block object-fit-cover"
+                         style="width:72px;height:72px;object-fit:cover;border:3px solid #e63946">
+                @else
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold"
+                         style="width:72px;height:72px;background:#e63946;color:#fff;font-size:1.8rem">
+                        {{ strtoupper(substr($member->first_name,0,1)) }}
+                    </div>
+                @endif
                 <div class="text-white fw-bold fs-5">{{ $member->full_name }}</div>
                 <div class="text-white opacity-50 small mb-3">{{ $member->email }}</div>
                 <span class="badge badge-{{ $member->status }} rounded-pill px-3 py-2">{{ ucfirst($member->status) }}</span>
@@ -144,3 +188,24 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Live preview when a photo is selected
+    document.getElementById('photoInput').addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const preview = document.getElementById('photoPreview');
+        const initial = document.getElementById('photoInitial');
+        const reader  = new FileReader();
+
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+            if (initial) initial.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
+@endpush
