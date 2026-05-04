@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 echo "=== Clearing old caches ==="
 php artisan config:clear
 php artisan cache:clear
