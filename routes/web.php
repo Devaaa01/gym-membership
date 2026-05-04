@@ -43,6 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('classes',     GymClassController::class);
     Route::resource('bookings',    ClassBookingController::class);
     Route::resource('payments',    PaymentController::class);
+    Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
+    Route::post('payments/{payment}/reject',  [PaymentController::class, 'reject'])->name('payments.reject');
 
     // Admin account management
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -88,6 +90,7 @@ Route::prefix('member')->name('member.')->group(function () {
         Route::get('payment/pay',    [MemberPortalController::class, 'showPaymentForm'])->name('payment.form');
         Route::post('payment/subscribe', [MemberPortalController::class, 'subscribePlan'])->name('payment.subscribe');
         Route::post('payment/process',   [MemberPortalController::class, 'processPayment'])->name('payment.process');
+        Route::get('payment/{payment}/pending', [MemberPortalController::class, 'paymentPending'])->name('payment.pending');
         Route::get('payment/{payment}/success', [MemberPortalController::class, 'paymentSuccess'])->name('payment.success');
     });
 });

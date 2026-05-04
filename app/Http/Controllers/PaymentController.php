@@ -113,4 +113,34 @@ class PaymentController extends Controller
         return redirect()->route('payments.index')
             ->with('success', 'Payment record deleted successfully!');
     }
+
+    public function confirm(Payment $payment)
+    {
+        if ($payment->status !== 'pending') {
+            return back()->with('error', 'Only pending payments can be confirmed.');
+        }
+
+        $payment->update([
+            'status'       => 'paid',
+            'payment_date' => $payment->payment_date ?? now()->toDateString(),
+        ]);
+
+        // Activate the membership
+        if ($payment->membership && $payment->membership->status === 'pending') {
+            $payment->membership->update(['status' => 'active']);
+        }
+
+        return back()->with('success', 'Payment confirmed and membership activated.');
+    }
+
+    public function reject(Payment $payment)
+    {
+        if ($payment->status !== 'pending') {
+            return back()->with('error', 'Only pending payments can be rejected.');
+        }
+
+        $payment->update(['status' => 'failed']);
+
+        return back()->with('success', 'Payment rejected.');
+    }
 }

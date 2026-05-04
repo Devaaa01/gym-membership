@@ -143,9 +143,15 @@ class MemberPortalController extends Controller
             ->pluck('class_id')
             ->toArray();
 
+        // Map class_id => booking for cancel links
+        $bookingMap = $member->classBookings()
+            ->whereIn('status', ['booked', 'attended'])
+            ->get()
+            ->keyBy('class_id');
+
         $hasActiveMembership = $member->activeMembership !== null;
 
-        return view('member.classes', compact('classes', 'categories', 'bookedIds', 'hasActiveMembership'));
+        return view('member.classes', compact('classes', 'categories', 'bookedIds', 'bookingMap', 'hasActiveMembership'));
     }
 
     public function bookClass(Request $request, GymClass $class)
@@ -157,8 +163,11 @@ class MemberPortalController extends Controller
             return back()->with('error', 'You need an active membership to book classes. Please subscribe to a plan first.');
         }
 
-        // Already booked?
-        if (ClassBooking::where('member_id', $member->id)->where('class_id', $class->id)->exists()) {
+        // Already booked (active)?
+        if (ClassBooking::where('member_id', $member->id)
+                ->where('class_id', $class->id)
+                ->whereIn('status', ['booked', 'attended'])
+                ->exists()) {
             return back()->with('error', 'You have already booked this class.');
         }
 
@@ -168,11 +177,20 @@ class MemberPortalController extends Controller
             return back()->with('error', 'Sorry, this class is fully booked.');
         }
 
-        ClassBooking::create([
-            'member_id' => $member->id,
-            'class_id'  => $class->id,
-            'status'    => 'booked',
-        ]);
+        // Re-use a cancelled booking row if one exists (unique constraint on member+class)
+        $existing = ClassBooking::where('member_id', $member->id)
+            ->where('class_id', $class->id)
+            ->first();
+
+        if ($existing) {
+            $existing->update(['status' => 'booked']);
+        } else {
+            ClassBooking::create([
+                'member_id' => $member->id,
+                'class_id'  => $class->id,
+                'status'    => 'booked',
+            ]);
+        }
 
         return back()->with('success', 'You have successfully booked "' . $class->name . '"!');
     }
@@ -222,7 +240,7 @@ class MemberPortalController extends Controller
         ));
     }
 
-    // ── Subscribe to a new plan (creates membership + processes payment) ──
+    // ── Subscribe to a new plan (creates membership + pending payment) ──
     public function subscribePlan(Request $request)
     {
         $member = $this->member();
@@ -242,24 +260,21 @@ class MemberPortalController extends Controller
             'status'     => 'pending',
         ]);
 
-        // Immediately record payment and activate
+        // Record payment as pending — admin must confirm
         $payment = Payment::create([
             'member_id'      => $member->id,
             'membership_id'  => $membership->id,
             'amount'         => $plan->price,
             'payment_method' => $validated['payment_method'],
-            'status'         => 'paid',
+            'status'         => 'pending',
             'payment_date'   => now()->toDateString(),
-            'notes'          => 'Self-service payment by member.',
+            'notes'          => 'Awaiting admin confirmation.',
         ]);
 
-        $membership->update(['status' => 'active']);
-
-        return redirect()->route('member.payment.success', $payment)
-            ->with('success', 'Payment successful! Your membership is now active.');
+        return redirect()->route('member.payment.pending', $payment);
     }
 
-    // ── Process payment ───────────────────────────────────────────────────
+    // ── Process payment (pay existing pending membership) ─────────────────
     public function processPayment(Request $request)
     {
         $member = $this->member();
@@ -269,7 +284,6 @@ class MemberPortalController extends Controller
             'payment_method' => 'required|in:cash,credit_card,debit_card,bank_transfer,e_wallet',
         ]);
 
-        // Make sure this membership belongs to the logged-in member
         $membership = $member->memberships()->with('plan')->find($validated['membership_id']);
 
         if (!$membership) {
@@ -280,36 +294,31 @@ class MemberPortalController extends Controller
             return back()->with('error', 'This membership has already been paid or is not payable.');
         }
 
-        // Create the payment record as paid
+        // Create payment as pending — admin must confirm
         $payment = Payment::create([
             'member_id'      => $member->id,
             'membership_id'  => $membership->id,
             'amount'         => $membership->plan->price,
             'payment_method' => $validated['payment_method'],
-            'status'         => 'paid',
+            'status'         => 'pending',
             'payment_date'   => now()->toDateString(),
-            'notes'          => 'Self-service payment by member.',
+            'notes'          => 'Awaiting admin confirmation.',
         ]);
 
-        // Activate the membership
-        $membership->update(['status' => 'active']);
-
-        return redirect()->route('member.payment.success', $payment)
-            ->with('success', 'Payment successful! Your membership is now active.');
+        return redirect()->route('member.payment.pending', $payment);
     }
 
-    // ── Payment success page ──────────────────────────────────────────────
-    public function paymentSuccess(Payment $payment)
+    // ── Payment pending page ──────────────────────────────────────────────
+    public function paymentPending(Payment $payment)
     {
         $member = $this->member();
 
-        // Security: only the owner can view
         if ($payment->member_id !== $member->id) {
             abort(403);
         }
 
         $payment->load('membership.plan');
 
-        return view('member.payment-success', compact('payment'));
+        return view('member.payment-pending', compact('payment'));
     }
 }

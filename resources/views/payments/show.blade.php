@@ -14,6 +14,17 @@
     </div>
     <div class="d-flex gap-2">
         <a href="{{ route('payments.edit', $payment) }}" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+        @if($payment->status === 'pending')
+        <form action="{{ route('payments.confirm', $payment) }}" method="POST">
+            @csrf
+            <button class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Confirm Payment</button>
+        </form>
+        <form action="{{ route('payments.reject', $payment) }}" method="POST"
+              onsubmit="return confirm('Reject this payment?')">
+            @csrf
+            <button class="btn btn-warning"><i class="bi bi-x-lg me-1"></i>Reject</button>
+        </form>
+        @endif
     </div>
 </div>
 

@@ -76,6 +76,21 @@
                 <td class="text-end pe-4">
                     <a href="{{ route('payments.show', $payment) }}" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-eye"></i></a>
                     <a href="{{ route('payments.edit', $payment) }}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                    @if($payment->status === 'pending')
+                    <form action="{{ route('payments.confirm', $payment) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button class="btn btn-sm btn-success me-1" title="Confirm Payment">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                    </form>
+                    <form action="{{ route('payments.reject', $payment) }}" method="POST" class="d-inline"
+                          onsubmit="return confirm('Reject this payment?')">
+                        @csrf
+                        <button class="btn btn-sm btn-warning me-1" title="Reject Payment">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                    @endif
                     <form action="{{ route('payments.destroy', $payment) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this payment record?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

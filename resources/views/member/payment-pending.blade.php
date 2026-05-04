@@ -1,19 +1,18 @@
 @extends('layouts.member')
-@section('title', 'Payment Successful')
+@section('title', 'Payment Submitted')
 
 @section('content')
 <div class="row justify-content-center">
     <div class="col-md-7 col-lg-6">
 
-        {{-- Success card --}}
         <div class="card text-center py-5 px-4 mb-4">
             <div class="mb-4">
                 <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
-                     style="width:80px;height:80px;background:rgba(6,95,70,.15)">
-                    <i class="bi bi-check-lg text-success" style="font-size:2.5rem"></i>
+                     style="width:80px;height:80px;background:rgba(234,179,8,.15)">
+                    <i class="bi bi-hourglass-split text-warning" style="font-size:2.5rem"></i>
                 </div>
-                <h3 class="fw-bold mb-1">Payment Successful!</h3>
-                <p class="text-muted">Your membership is now active. Welcome aboard!</p>
+                <h3 class="fw-bold mb-1">Payment Submitted!</h3>
+                <p class="text-muted">Your payment is awaiting confirmation from our staff.<br>Your membership will be activated once confirmed.</p>
             </div>
 
             {{-- Receipt --}}
@@ -38,14 +37,23 @@
                     <span class="small fw-semibold" style="color:var(--text-primary)">{{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="small" style="color:var(--text-secondary)">Date</span>
+                    <span class="small" style="color:var(--text-secondary)">Date Submitted</span>
                     <span class="small fw-semibold" style="color:var(--text-primary)">{{ $payment->payment_date->format('d M Y') }}</span>
                 </div>
                 <hr class="my-3">
-                <div class="d-flex justify-content-between">
-                    <span class="fw-bold" style="color:var(--text-primary)">Amount Paid</span>
-                    <span class="fw-bold text-success fs-5">{{ $payment->formatted_amount }}</span>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold" style="color:var(--text-primary)">Amount</span>
+                    <span class="fw-bold fs-5" style="color:var(--text-primary)">{{ $payment->formatted_amount }}</span>
                 </div>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="fw-bold" style="color:var(--text-primary)">Status</span>
+                    <span class="badge bg-warning text-dark rounded-pill px-3">Pending Confirmation</span>
+                </div>
+            </div>
+
+            <div class="alert alert-info rounded-3 border-0 text-start small mb-4">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Please complete your payment via the selected method and show proof to our staff. They will confirm your payment and activate your membership.
             </div>
 
             <div class="d-grid gap-2">

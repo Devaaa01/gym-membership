@@ -101,9 +101,14 @@
             </div>
 
             @if($isBooked)
-                <button class="btn btn-outline-success w-100" disabled>
-                    <i class="bi bi-check-circle me-1"></i>Already Booked
-                </button>
+                <form method="POST"
+                      action="{{ route('member.bookings.cancel', $bookingMap[$class->id]) }}"
+                      onsubmit="return confirm('Cancel your booking for \'{{ addslashes($class->name) }}\'?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-x-circle me-1"></i>Cancel Booking
+                    </button>
+                </form>
             @elseif($spots <= 0)
                 <button class="btn btn-outline-secondary w-100" disabled>Class Full</button>
             @elseif(!$hasActiveMembership)
