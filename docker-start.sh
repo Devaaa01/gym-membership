@@ -8,6 +8,13 @@ fi
 # Run migrations
 php artisan migrate --force
 
+# Seed only if the users table is empty (first deploy)
+USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | tail -1)
+if [ "$USER_COUNT" = "0" ] || [ -z "$USER_COUNT" ]; then
+    echo "Seeding database..."
+    php artisan db:seed --force
+fi
+
 # Create storage symlink
 php artisan storage:link || true
 
