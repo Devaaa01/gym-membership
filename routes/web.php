@@ -14,10 +14,10 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Member\MemberAuthController;
 use App\Http\Controllers\Member\MemberPortalController;
 
-// Root → redirect to member login
+// Root → Landing page
 Route::get('/', function () {
-    return redirect()->route('member.login');
-});
+    return view('landing');
+})->name('landing');
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  ADMIN PANEL  (guard: web / User model)
