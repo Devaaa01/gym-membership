@@ -16,6 +16,8 @@ A comprehensive web application built with **Laravel** designed to manage gym op
 ## 🚀 Features
 
 ### **Live Demo**
+![App Screenshot](image.png)
+
 <p align="center">
 <a href="https://kelarin.my.id">Live demo</a>
 </p>
