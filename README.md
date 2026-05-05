@@ -15,6 +15,12 @@ A comprehensive web application built with **Laravel** designed to manage gym op
 
 ## 🚀 Features
 
+### **Live Demo**
+<p align="center">
+<a href="https://kelarin.my.id">Live demo</a>
+</p>
+
+
 ### **Admin Dashboard**
 *   **Member Management**: Full CRUD operations for gym members.
 *   **Trainer Management**: Manage fitness instructors and their specialties.
