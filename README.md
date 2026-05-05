@@ -9,35 +9,35 @@
 
 # Gym Membership Management System
 
-A comprehensive web application built with **Laravel** designed to manage gym operations, including member registrations, membership plans, trainer assignments, class bookings, and payment tracking[cite: 1].
+A comprehensive web application built with **Laravel** designed to manage gym operations, including member registrations, membership plans, trainer assignments, class bookings, and payment tracking.
 
 ---
 
 ## 🚀 Features
 
 ### **Admin Dashboard**
-*   **Member Management**: Full CRUD operations for gym members[cite: 1].
-*   **Trainer Management**: Manage fitness instructors and their specialties[cite: 1].
-*   **Membership Plans**: Create and customize various tiers of membership (e.g., Monthly, Yearly)[cite: 1].
-*   **Class Scheduling**: Organize and manage gym classes (Yoga, HIIT, etc.)[cite: 1].
-*   **Booking Tracking**: Monitor class attendance and bookings[cite: 1].
-*   **Payment Monitoring**: View and verify member payments[cite: 1].
+*   **Member Management**: Full CRUD operations for gym members.
+*   **Trainer Management**: Manage fitness instructors and their specialties.
+*   **Membership Plans**: Create and customize various tiers of membership (e.g., Monthly, Yearly).
+*   **Class Scheduling**: Organize and manage gym classes (Yoga, HIIT, etc.).
+*   **Booking Tracking**: Monitor class attendance and bookings.
+*   **Payment Monitoring**: View and verify member payments.
 
 ### **Member Portal**
-*   **Authentication**: Secure registration and login for gym members[cite: 1].
-*   **Personal Profile**: Update personal details and profile photos[cite: 1].
-*   **Membership Status**: View active plans and renewal dates[cite: 1].
-*   **Class Booking**: Browse available classes and book spots[cite: 1].
-*   **Payments**: Submit and track payment history[cite: 1].
+*   **Authentication**: Secure registration and login for gym members.
+*   **Personal Profile**: Update personal details and profile photos.
+*   **Membership Status**: View active plans and renewal dates.
+*   **Class Booking**: Browse available classes and book spots.
+*   **Payments**: Submit and track payment history.
 
 ---
 
 ## 🛠️ Tech Stack
 
-*   **Framework**: Laravel (PHP)[cite: 1]
-*   **Frontend**: Blade Templates, CSS, JavaScript (Vite)[cite: 1]
-*   **Database**: MySQL / SQLite[cite: 1]
-*   **Deployment**: Docker-ready, Render/Railpack support[cite: 1]
+*   **Framework**: Laravel (PHP)
+*   **Frontend**: Blade Templates, CSS, JavaScript (Vite)
+*   **Database**: MySQL / SQLite
+*   **Deployment**: Docker-ready, Render/Railpack support
 
 ---
 
@@ -96,7 +96,7 @@ A comprehensive web application built with **Laravel** designed to manage gym op
 
 ## 🐳 Docker Support
 
-The project includes a `Dockerfile` and `docker-start.sh` for easy containerization[cite: 1].
+The project includes a `Dockerfile` and `docker-start.sh` for easy containerization.
 
 ```bash
 docker build -t gym-membership .
@@ -107,11 +107,11 @@ docker run -p 8000:80 gym-membership
 
 ## 📂 Project Structure Highlights
 
-*   **`app/Http/Controllers/Admin`**: Contains logic for administrative tasks[cite: 1].
-*   **`app/Http/Controllers/Member`**: Handles member-specific portal logic[cite: 1].
-*   **`app/Models`**: Includes models for `Member`, `MembershipPlan`, `Trainer`, `GymClass`, `Payment`, etc[cite: 1].
-*   **`resources/views`**: Organized Blade templates for Admin, Member, and Auth views[cite: 1].
-*   **`database/migrations`**: Database schema definitions[cite: 1].
+*   **`app/Http/Controllers/Admin`**: Contains logic for administrative tasks.
+*   **`app/Http/Controllers/Member`**: Handles member-specific portal logic.
+*   **`app/Models`**: Includes models for `Member`, `MembershipPlan`, `Trainer`, `GymClass`, `Payment`, etc.
+*   **`resources/views`**: Organized Blade templates for Admin, Member, and Auth views.
+*   **`database/migrations`**: Database schema definitions.
 
 ---
 
