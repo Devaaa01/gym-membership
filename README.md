@@ -53,7 +53,7 @@ A comprehensive web application built with **Laravel** designed to manage gym op
 
 1.  **Clone the repository**
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/Devaaa01/gym-membership.git
     cd gym-membership
     ```
 
