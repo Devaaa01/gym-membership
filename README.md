@@ -76,7 +76,7 @@ A comprehensive web application built with **Laravel** designed to manage gym op
 
 5.  **Run Migrations & Seeders**
     
-```bash
+    ```bash
     php artisan migrate --seed
     ```
 
