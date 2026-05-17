@@ -8,6 +8,11 @@ echo "DB_DATABASE: $DB_DATABASE"
 echo "DB_USERNAME: $DB_USERNAME"
 echo "MYSQL_ATTR_SSL_CA: $MYSQL_ATTR_SSL_CA"
 
+echo "=== Configuring Apache port ==="
+PORT="${PORT:-80}"
+sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*:[0-9]\+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
+
 echo "=== Fixing storage permissions ==="
 chmod -R 777 /var/www/html/storage
 chmod -R 777 /var/www/html/bootstrap/cache
