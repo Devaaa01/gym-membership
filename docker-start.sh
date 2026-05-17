@@ -2,12 +2,12 @@
 set -Eeuo pipefail
 
 echo "=== Environment Check ==="
-echo "APP_ENV: $APP_ENV"
-echo "DB_HOST: $DB_HOST"
-echo "DB_PORT: $DB_PORT"
-echo "DB_DATABASE: $DB_DATABASE"
-echo "DB_USERNAME: $DB_USERNAME"
-echo "MYSQL_ATTR_SSL_CA: $MYSQL_ATTR_SSL_CA"
+echo "APP_ENV: ${APP_ENV:-}"
+echo "DB_HOST: ${DB_HOST:-}"
+echo "DB_PORT: ${DB_PORT:-}"
+echo "DB_DATABASE: ${DB_DATABASE:-}"
+echo "DB_USERNAME: ${DB_USERNAME:-}"
+echo "MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-}"
 
 echo "=== Configuring Apache port ==="
 sed -i "s/^Listen .*/Listen 80/" /etc/apache2/ports.conf
