@@ -35,6 +35,7 @@ APP_ENV=production
 APP_KEY=base64:replace_this_with_your_key
 APP_DEBUG=false
 APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
+PORT=80
 
 DB_CONNECTION=mysql
 DB_HOST=${{MySQL.MYSQLHOST}}
@@ -87,7 +88,8 @@ Change this password after the first login.
 2. Go to **Settings**.
 3. Open **Networking**.
 4. Click **Generate Domain**.
-5. Redeploy once after the domain appears, so `APP_URL` resolves correctly.
+5. Set the domain's **Target Port** to `80` if Railway asks for one.
+6. Redeploy once after the domain appears, so `APP_URL` resolves correctly.
 
 ## 7. Persist uploaded photos
 

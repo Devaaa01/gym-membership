@@ -1,4 +1,5 @@
 #!/bin/bash
+set -Eeuo pipefail
 
 echo "=== Environment Check ==="
 echo "APP_ENV: $APP_ENV"
@@ -9,9 +10,10 @@ echo "DB_USERNAME: $DB_USERNAME"
 echo "MYSQL_ATTR_SSL_CA: $MYSQL_ATTR_SSL_CA"
 
 echo "=== Configuring Apache port ==="
-PORT="${PORT:-80}"
-sed -i "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
-sed -i "s/<VirtualHost \*:[0-9]\+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
+sed -i "s/^Listen .*/Listen 80/" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*:[0-9]\+>/<VirtualHost *:80>/" /etc/apache2/sites-available/000-default.conf
+echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
+a2enconf servername
 
 echo "=== Fixing storage permissions ==="
 chmod -R 777 /var/www/html/storage
@@ -30,13 +32,13 @@ php artisan route:clear || true
 php artisan view:clear || true
 
 echo "=== Running migrations ==="
-php artisan migrate --force || echo "Migration failed - check DB connection"
+php artisan migrate --force
 
 # Seed only if users table is empty
 USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | tail -1)
 if [ "$USER_COUNT" = "0" ] || [ -z "$USER_COUNT" ]; then
     echo "=== Seeding database ==="
-    php artisan db:seed --force || echo "Seeding failed"
+    php artisan db:seed --force
 fi
 
 echo "=== Creating storage symlink ==="
@@ -47,5 +49,8 @@ php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
+echo "=== Validating Apache config ==="
+apachectl configtest
+
 echo "=== Starting Apache ==="
-apache2-foreground
+exec apache2-foreground
