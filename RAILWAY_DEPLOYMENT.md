@@ -44,7 +44,9 @@ DB_DATABASE=${{MySQL.MYSQLDATABASE}}
 DB_USERNAME=${{MySQL.MYSQLUSER}}
 DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
 
-SESSION_DRIVER=cookie
+SESSION_DRIVER=file
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
 CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
 FILESYSTEM_DISK=public
@@ -52,6 +54,8 @@ LOG_CHANNEL=stderr
 ```
 
 If your MySQL service has a different name, use Railway's autocomplete for the `MySQL.*` references.
+
+Leave `SESSION_DOMAIN` unset. If Railway has a `SESSION_DOMAIN` variable from an earlier attempt, delete it unless it exactly matches your current public domain.
 
 Generate the app key locally with:
 
